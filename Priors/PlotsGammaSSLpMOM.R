@@ -1,5 +1,6 @@
 #####SSL####
 ##Including m_ij and sigma^2 as a different variable
+#Density
 dgammaSSL1 <- function(m,sigma2,l0,l1,g.theta){
   ratio <- (1-g.theta)/g.theta * sqrt(l1/l0) * exp(-1/2*(m^2/sigma2)*(1/l0-1/l1))
   density <- 1/(1+ratio)
@@ -7,6 +8,7 @@ dgammaSSL1 <- function(m,sigma2,l0,l1,g.theta){
   return(density)
 }
 
+#First derivative
 inflex.gammaSSL <- function(m,sigma2,l0,l1,g.theta){
   a <- (1-g.theta)/g.theta*sqrt(l1/l0)
   b <- (1/sigma2)*(1/l0-1/l1)
@@ -14,6 +16,7 @@ inflex.gammaSSL <- function(m,sigma2,l0,l1,g.theta){
   return(x)
 }
 
+#Second derivative
 second.gammaSSL <- function(m,sigma2,l0,l1,g.theta){
   a <- (1-g.theta)/g.theta*sqrt(l1/l0)
   b <- (1/sigma2)*(1/l0-1/l1)
@@ -40,6 +43,7 @@ mij05 <-function(l0,l1,g.theta){
 mij05(0.01,30,.5)
 dgammaSSL(mij05(0.01,30,.5),.01,30,.5)
 
+##Obtaining relevant values of m_ij (P=0.95)
 mij95 <-function(l0,l1,g.theta){
   ratio.p <- (1-g.theta)/(g.theta)
   ratio.l <- sqrt(l1/l0)
