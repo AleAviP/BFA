@@ -100,6 +100,7 @@ BFA.EM.BE.P.pMOM <- function(x,v,b=NULL,q=2,eps=0.0001,it=50,seed=4,scaling=FALS
   }else{psi_aux=matrix(1,p,p_b)}
   
   while ((count < it) & (change > eps )) {
+    #print(count)
     ##E step
     Ez<-E.Z(x,as.matrix(M),psi,q)
     Ez.x<-Ez$z
@@ -120,6 +121,10 @@ BFA.EM.BE.P.pMOM <- function(x,v,b=NULL,q=2,eps=0.0001,it=50,seed=4,scaling=FALS
     if(likelihoodFA(x,M,psi)<lik){
       M<-M.old
     }
+    #Diff = llply(.data = 1:p, .fun = function(y){
+    #  likelihoodFA(x,Mreplace(M.old,M,y),psi)>likelihoodFA(x,M.old,psi)
+    #}, .parallel = FALSE)
+    #Diff = do.call("rbind", Diff)
     tM <- t(M)
     
     if (varianceBE==FALSE){

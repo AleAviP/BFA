@@ -101,7 +101,8 @@ BFA.EM.BE.P.2 <- function(x,v,b=NULL,q=2,eps=0.0001,it=50,seed=4,scaling=FALSE,i
   
   while ((count < it) & (change > eps )) {
     ##E step
-    Ez<-E.Z(x,as.matrix(M),psi,q)
+    #Ez<-E.Z(x,as.matrix(M),psi,q)
+    Ez<-E.Z(x,as.matrix(M),psi,q,p)
     Ez.x<-Ez$z
     Ezz.x<-Ez$zz
     W<-Ez$W

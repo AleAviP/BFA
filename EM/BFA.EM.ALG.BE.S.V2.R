@@ -1,9 +1,10 @@
 #####E-step###
-E.Z <- function(x,M,psi,q){
+E.Z <- function(x,M,psi,q,p){
   n<-nrow(x)
   I.q <- diag(q)
   tM <- t(M)
-  psiInv <- solve(psi)
+  #psiInv <- solve(psi)
+  psiInv <- diag(1/diag(psi),p)
   #psiInv <- ginv(psi)
   W <- solve(I.q + tM%*%psiInv%*%M)
   Z <- W%*%tM%*%psiInv%*%t(x)

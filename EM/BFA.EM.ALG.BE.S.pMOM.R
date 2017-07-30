@@ -105,3 +105,9 @@ logpriorFA <- function(M,psi,gtheta,gamma,D,hyper,varianceBE=FALSE,wb=1){
               lM=l.M,
               lTotal=l.total))
 }
+
+Mreplace<-function(Mold,Mnew,i){
+  M2<-Mold
+  M2[i,]<-Mnew[i,]
+  return(M2)
+}
