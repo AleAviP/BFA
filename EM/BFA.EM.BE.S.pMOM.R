@@ -94,6 +94,8 @@ BFA.EM.BE.P.pMOM <- function(x,v,b=NULL,q=2,eps=0.0001,it=50,seed=4,scaling=FALS
   I.q <- diag(q)
   
   trace_like <- lik
+  trace_prior <- lik
+  trace_post <- lik
   
   if(varianceBE==FALSE){
     psi_aux=vector()
@@ -102,7 +104,7 @@ BFA.EM.BE.P.pMOM <- function(x,v,b=NULL,q=2,eps=0.0001,it=50,seed=4,scaling=FALS
   while ((count < it) & (change > eps )) {
     #print(count)
     ##E step
-    Ez<-E.Z(x,as.matrix(M),psi,q)
+    Ez<-E.Z(x,as.matrix(M),psi,q,p)
     Ez.x<-Ez$z
     Ezz.x<-Ez$zz
     W<-Ez$W
@@ -162,9 +164,15 @@ BFA.EM.BE.P.pMOM <- function(x,v,b=NULL,q=2,eps=0.0001,it=50,seed=4,scaling=FALS
     
     ##Likelihood
     likelihood<-likelihoodFA(x,M,psi)
-    change<-likelihood-lik
-    lik<-likelihood
+    logprior<-logpriorFApMOM(M,psi_aux,g.theta,p.gamma,D,hyper,varianceBE,w_b)$lTotal
+    logpost <- likelihood+logprior
+    #change<-likelihood-lik
+    #lik<-likelihood
+    change<-logpost-lik
+    lik<-logpost
     trace_like<-c(trace_like,likelihood)
+    trace_prior<-c(trace_prior,logprior)
+    trace_post<-c(trace_post,logpost)
     count<-count+1
     #print(count)
     #print(change)
@@ -184,5 +192,7 @@ BFA.EM.BE.P.pMOM <- function(x,v,b=NULL,q=2,eps=0.0001,it=50,seed=4,scaling=FALS
               traceGtheta=trace_g.theta,
               traceP=trace_p,
               iterations=count,
-              like=trace_like[-1]))
+              like=trace_like[-1],
+              prior=trace_prior[-1],
+              post=trace_post[-1]))
 }

@@ -1,9 +1,10 @@
 #####E-step###
-E.Z <- function(x,M,psi,q){
+E.Z <- function(x,M,psi,q,p){
   n<-nrow(x)
   I.q <- diag(q)
   tM <- t(M)
-  psiInv <- solve(psi)
+  #psiInv <- solve(psi)
+  psiInv <- diag(1/diag(psi),p)
   #psiInv <- ginv(psi)
   W <- solve(I.q + tM%*%psiInv%*%M)
   Z <- W%*%tM%*%psiInv%*%t(x)
@@ -82,26 +83,35 @@ likelihoodFA <- function(x,M,psi){
   return(l)
 }
 
-logpriorFA <- function(M,psi,gtheta,gamma,D,hyper,varianceBE=FALSE,wb=1){
+logpriorFApMOM <- function(M,psi,gtheta,gamma,D,hyper,varianceBE=FALSE,wb=1){
   q=ncol(M)
   p=nrow(M)
   l.psi=0
   l.psi=sum(log(dinvgamma(psi,hyper$aS/2,hyper$aS*hyper$bS/2)))
-  aux.theta=dbeta(gtheta,hyper$at,hyper$bt,log=TRUE)
-  aux.theta[is.infinite(aux.theta)]=0
-  l.gtheta=sum(aux.theta)
-  aux=log(gtheta/(1-gtheta))*apply(gamma,1,sum)+q*log(1-gtheta)
-  aux[is.infinite(aux)]=0
-  l.gamma=sum(aux,na.rm=TRUE)
+  sum.gamma=apply(gamma,2,sum)
+  BetaBin.aux = llply(.data = 1:q, .fun = function(y){
+    log(beta(sum.gamma[y]+hyper$at/y,p-sum.gamma[y]+hyper$bt))-log(beta(hyper$at/y,hyper$at))
+  }, .parallel = FALSE)
+  BetaBin.aux = do.call("rbind", BetaBin.aux)
+  # Stirling approximation
+  BetaBin.approx = llply(.data = 1:q, .fun = function(y){
+    0.5*log(2*pi)+(sum.gamma[y]+hyper$at/y-0.5)*log(sum.gamma[y]+hyper$at/y)+
+      +(p-sum.gamma[y]+hyper$bt-0.5)*log(p-sum.gamma[y]+hyper$bt)-
+      (p+hyper$at/y+hyper$bt-0.5)*log(p+hyper$at/y+hyper$bt)
+  }, .parallel = FALSE)
+  BetaBin.approx = do.call("rbind", BetaBin.approx)
+  BetaBin.aux[is.infinite(BetaBin.aux)]=BetaBin.approx[is.infinite(BetaBin.aux)]
+  l.gamma.gtheta=sum(BetaBin.aux)
   if(varianceBE==TRUE){psi=psi%*%wb}
   l.M=do.call("rbind",llply(.data = 1:p, .fun = function(y){
     dmnorm(M[y,],mean=rep(0,q),diag(psi[y]*D[y,]),log=TRUE)
   }, .parallel = FALSE))
   l.M=sum(l.M)
-  l.total=l.psi+l.gtheta+l.gamma+l.M
+  l.pMOM = sum(log(M^2)[,!gtheta==0]%*%gtheta[!gtheta==0]-log(psi)-log(hyper$l1))
+  l.total=l.psi+l.gamma.gtheta+l.M+l.pMOM
   return(list(lPsi=l.psi,
-              lGamma=l.gamma,
-              lGtheta=l.gtheta,
+              lpMOM =l.pMOM,
+              lGammaGtheta=l.gamma.gtheta,
               lM=l.M,
               lTotal=l.total))
 }
