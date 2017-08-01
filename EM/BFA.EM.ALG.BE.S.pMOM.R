@@ -107,7 +107,7 @@ logpriorFApMOM <- function(M,psi,gtheta,gamma,D,hyper,varianceBE=FALSE,wb=1){
     dmnorm(M[y,],mean=rep(0,q),diag(psi[y]*D[y,]),log=TRUE)
   }, .parallel = FALSE))
   l.M=sum(l.M)
-  l.pMOM = sum(log(M^2)[,!gtheta==0]%*%gtheta[!gtheta==0]-log(psi)-log(hyper$l1))
+  l.pMOM = sum(log(M^2)[,!gtheta==0]*gamma[,!gtheta==0])-sum(t(log(psi*hyper$l1))%*%gamma)
   l.total=l.psi+l.gamma.gtheta+l.M+l.pMOM
   return(list(lPsi=l.psi,
               lpMOM =l.pMOM,
