@@ -34,3 +34,10 @@ likelihoodFA <- function(x,M,psi){
   l = -n/2 *(p*log(2 * pi )+log(det(C)) + tr(solve(C)%*%cov(x)))
   return(l)
 }
+
+logpriorFAns <- function(psi,hyper){
+  l.psi=0
+  l.psi=sum(log(dinvgamma(psi,hyper$aS/2,hyper$aS*hyper$bS/2)))
+  return(list(lPsi=l.psi,
+              lTotal=l.psi))
+}

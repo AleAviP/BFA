@@ -76,6 +76,8 @@ BFA.EM.BE.P <- function(x,v,b=NULL,q=2,eps=0.0001,it=50,seed=4,scaling=FALSE,ini
   x<-x_o-v%*%t(theta)
   
   trace_like <- lik
+  trace_prior <- lik
+  trace_post <- lik
   
   if(varianceBE==FALSE){
     psi_aux=vector()
@@ -117,9 +119,13 @@ BFA.EM.BE.P <- function(x,v,b=NULL,q=2,eps=0.0001,it=50,seed=4,scaling=FALSE,ini
     
     ##Likelihood
     likelihood<-likelihoodFA(x,M,psi)
+    logprior<-logpriorFAns(psi_aux,hyper)$lTotal
+    logpost <- likelihood+logprior
     change<-likelihood-lik
     lik<-likelihood
     trace_like<-c(trace_like,likelihood)
+    trace_prior<-c(trace_prior,logprior)
+    trace_post<-c(trace_post,logpost)
     count<-count+1
   }
   
@@ -131,5 +137,7 @@ BFA.EM.BE.P <- function(x,v,b=NULL,q=2,eps=0.0001,it=50,seed=4,scaling=FALSE,ini
               traceTheta=trace_theta,
               traceM=trace_M,
               iterations=count,
-              like=trace_like[-1]))
+              like=trace_like[-1],
+              prior=trace_prior[-1],
+              post=trace_post[-1]))
 }

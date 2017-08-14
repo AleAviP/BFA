@@ -48,7 +48,7 @@ BFA.EM.BE.P.2 <- function(x,v,b=NULL,q=2,eps=0.0001,it=50,seed=4,scaling=FALSE,i
     theta = t(fm1$coefficients[-1,]) 
     #Replacing NA for zeros
     theta[is.na(theta)] <- 0
-    stima<-try(factanal(fm1$residuals,r,rotation="none"),silent=TRUE) 
+    #stima<-try(factanal(fm1$residuals,r,rotation="none"),silent=TRUE) 
     psi<-diag(p)
     svd.X <- svd(fm1$residuals)
     svd.U <- svd.X$u
@@ -57,7 +57,7 @@ BFA.EM.BE.P.2 <- function(x,v,b=NULL,q=2,eps=0.0001,it=50,seed=4,scaling=FALSE,i
     sigma2 <- 1/(p-q) * sum(svd.U[(q+1):p])                                                          # variance; average variance associated with discarded dimensions
     aux_p <- min(n,p)
     if(is.positive.definite(Lambda-sigma2*diag(aux_p))==FALSE){
-      aux.chol = nearPD(Lambda-sigma2*diag(aux_p))$mat
+      aux.chol = matrix(ncol=n,nearPD(Lambda-sigma2*diag(aux_p))$mat)
     }else{aux.chol = Lambda-sigma2*diag(aux_p)}
     M<-(svd.V %*% chol(aux.chol) %*% diag(aux_p))[,1:q]
     z<-mvrnorm(n = n, rep(0,q), diag(q))
@@ -77,12 +77,12 @@ BFA.EM.BE.P.2 <- function(x,v,b=NULL,q=2,eps=0.0001,it=50,seed=4,scaling=FALSE,i
     g.theta <- initi$g.theta}
   
   ##traces
-  trace_psi <- matrix(nrow =1, ncol = p*p_b,diag(psi))
-  trace_theta <- matrix(nrow =1, ncol = p*p_v,c(theta))
-  trace_M <- matrix(nrow = 1, ncol = p*q,c(M))
-  trace_D <- matrix(nrow = 1, ncol = p*q,c(D))
-  trace_p <- matrix(nrow = 1, ncol = p*q,c(p.gamma))
-  trace_g.theta <- matrix(nrow = 1, ncol = q,c(g.theta))
+  trace_psi <- diag(psi)
+  trace_theta <- (c(theta))
+  trace_M <- (c(M))
+  trace_D <- (c(D))
+  trace_p <- (c(p.gamma))
+  trace_g.theta <- (c(g.theta))
   
   #####EM#####
   count<-1
@@ -144,7 +144,7 @@ BFA.EM.BE.P.2 <- function(x,v,b=NULL,q=2,eps=0.0001,it=50,seed=4,scaling=FALSE,i
     #Saving values
     trace_psi <- rbind(trace_psi,c(psi_aux))
     trace_theta <- rbind(trace_theta,c(t(theta)))
-    trace_M <- rbind(trace_M,c(M))
+    trace_M <- rbind(trace_M,c(as.matrix(M)))
     trace_D <- rbind(trace_D,c(D))
     trace_p <- rbind(trace_p,c(p.gamma))
     trace_g.theta <- rbind(trace_g.theta,c(g.theta))

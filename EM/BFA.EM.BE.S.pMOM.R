@@ -57,7 +57,7 @@ BFA.EM.BE.P.pMOM <- function(x,v,b=NULL,q=2,eps=0.0001,it=50,seed=4,scaling=FALS
     sigma2 <- 1/(p-q) * sum(svd.U[(q+1):p])                                                          # variance; average variance associated with discarded dimensions
     aux_p <- min(n,p)
     if(is.positive.definite(Lambda-sigma2*diag(aux_p))==FALSE){
-      aux.chol = nearPD(Lambda-sigma2*diag(aux_p))$mat
+      aux.chol = matrix(nearPD(Lambda-sigma2*diag(aux_p))$mat)
     }else{aux.chol = Lambda-sigma2*diag(aux_p)}
     M<-(svd.V %*% chol(aux.chol) %*% diag(aux_p))[,1:q]
     z<-mvrnorm(n = n, rep(0,q), diag(q))
